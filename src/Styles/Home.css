@@ -1,0 +1,79 @@
+.home{
+    height: 90vh;           
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: left;
+    padding-left: 4%;
+    flex-direction: column;
+    color: white;
+}
+.Header{
+    width: auto;
+    margin-left: 30px;
+}
+.Header h1{
+    font-size: 50px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-family: 'Poppins', sans-serif;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    color: black;
+
+}
+.Header p{
+    font-size: 20px;
+    font-weight: 400;
+    margin-bottom: 10px;
+    font-family: 'Poppins', sans-serif;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    font-weight: lighter ;
+    color: green;
+}
+.Header button{
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+}   
+.Header button:hover{
+    background-color: #31d146;
+    color: #000;
+}           
+.Header button:active{
+    background-color: #4332d8;
+    color: #000;
+}
+/* .Header button:active{
+    background-color: #fff;
+    color: #000;
+} */
+/* ..Header button:hover{
+    background-color: #fff;
+    color: #000;
+} */
+@media only screen and (max-width: 600px){
+    .home {
+        height: 80vh;
+        padding-left: 2%;
+    }
+    
+    .Header {
+        width: 100%;
+        margin-left: 15px;
+    }
+
+    .Header h1 {
+        font-size: 32px;
+    }
+
+    .Header p {
+        font-size: 16px;
+    }
+
+    .Header button {
+        padding: 8px 16px;
+    }
+}
+

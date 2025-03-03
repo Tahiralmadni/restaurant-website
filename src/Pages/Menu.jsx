@@ -18,7 +18,8 @@ import {
   IconButton,
   CardActions,
   Divider,
-  Rating
+  Rating,
+  useMediaQuery
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
@@ -34,6 +35,7 @@ const Menu = () => {
   const [value, setValue] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [priceFilter, setPriceFilter] = useState('all');
+  const matchesSM = useMediaQuery('(max-width:600px)');
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -223,39 +225,128 @@ const Menu = () => {
     }
 
     return (
-      <Grid container spacing={3}>
-        {items.map((item, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
-            <Card sx={{ height: '100%' }}>
-              <CardMedia
-                component="img"
-                height="200"
-                image={item.image}
-                alt={item.name}
-                sx={{ objectFit: 'cover' }}
-              />
-              <CardContent>
-                <Typography variant="h6">{item.name}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {item.description}
-                </Typography>
-                <Typography variant="h6" color="primary" sx={{ mt: 2 }}>
-                  {item.price}
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Button 
-                  variant="contained" 
-                  fullWidth
-                  onClick={() => handleAddToCart(item)}
-                >
-                  Add to Cart
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        viewport={{ once: true }}
+      >
+        <Grid container spacing={{ xs: 2, sm: 2, md: 3 }}>
+          {items.map((item, index) => (
+            <Grid item xs={12} sm={6} md={4} lg={4} key={index}>
+              <motion.div
+                variants={itemVariants}
+                whileHover={{ y: -10 }}
+                transition={{ type: "spring", stiffness: 400 }}
+                style={{ height: '100%' }}
+              >
+                <Card sx={{ 
+                  height: '100%', 
+                  position: 'relative',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  maxWidth: { xs: '100%', sm: '100%', md: '100%' }
+                }}>
+                  <Box sx={{ position: 'relative', overflow: 'hidden' }}>
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <CardMedia
+                        component="img"
+                        height={{ xs: '180', sm: '200', md: '200' }}
+                        image={item.image}
+                        alt={item.name}
+                        sx={{ 
+                          objectFit: 'cover',
+                          width: '100%'
+                        }}
+                      />
+                    </motion.div>
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 10,
+                        right: 10,
+                        bgcolor: 'primary.main',
+                        color: 'white',
+                        px: { xs: 1.5, sm: 2 },
+                        py: { xs: 0.3, sm: 0.5 },
+                        borderRadius: 2,
+                        boxShadow: 3,
+                        fontSize: { xs: '0.875rem', sm: '1rem' }
+                      }}
+                    >
+                      {item.price}
+                    </Box>
+                  </Box>
+                  <CardContent sx={{ flexGrow: 1, p: { xs: 1.5, sm: 2 } }}>
+                    <Typography 
+                      variant="h6" 
+                      gutterBottom
+                      sx={{ 
+                        fontSize: { xs: '1rem', sm: '1.25rem' },
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      {item.name}
+                    </Typography>
+                    <Typography 
+                      variant="body2" 
+                      color="text.secondary"
+                      sx={{ 
+                        mb: 2,
+                        fontSize: { xs: '0.875rem', sm: '0.875rem' },
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
+                      }}
+                    >
+                      {item.description}
+                    </Typography>
+                    <Rating value={4.5} precision={0.5} readOnly size="small" />
+                  </CardContent>
+                  <Divider />
+                  <CardActions sx={{ 
+                    justifyContent: 'space-between', 
+                    p: { xs: 1, sm: 1.5 },
+                    flexWrap: 'wrap',
+                    gap: 1
+                  }}>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      <motion.div whileHover={{ scale: 1.2 }}>
+                        <IconButton size={matchesSM ? "small" : "medium"}>
+                          <FavoriteIcon fontSize={matchesSM ? "small" : "medium"} />
+                        </IconButton>
+                      </motion.div>
+                      <motion.div whileHover={{ scale: 1.2 }}>
+                        <IconButton size={matchesSM ? "small" : "medium"} color="primary">
+                          <ShareIcon fontSize={matchesSM ? "small" : "medium"} />
+                        </IconButton>
+                      </motion.div>
+                    </Box>
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <Button
+                        variant="contained"
+                        startIcon={<AddShoppingCartIcon />}
+                        size={matchesSM ? "small" : "medium"}
+                        onClick={() => handleAddToCart(item)}
+                        sx={{ 
+                          borderRadius: 2,
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        Add to Cart
+                      </Button>
+                    </motion.div>
+                  </CardActions>
+                </Card>
+              </motion.div>
+            </Grid>
+          ))}
+        </Grid>
+      </motion.div>
     );
   };
 
@@ -271,40 +362,68 @@ const Menu = () => {
 
   return (
     <Layout>
-      <Container sx={{ py: 4 }}>
-        {/* Search and Filter UI */}
-        <Box sx={{ mb: 4 }}>
-          <TextField
-            fullWidth
-            placeholder="Search dishes..."
-            value={searchTerm}
-            onChange={handleSearch}
-            sx={{ mb: 2 }}
-          />
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            {['all', 'under300', '300to600', 'over600'].map((filter) => (
-              <Chip
-                key={filter}
-                label={filter === 'all' ? 'All Prices' : 
-                      filter === 'under300' ? 'Under Rs. 300' :
-                      filter === '300to600' ? 'Rs. 300 - 600' : 'Over Rs. 600'}
-                onClick={() => setPriceFilter(filter)}
-                color={priceFilter === filter ? 'primary' : 'default'}
-                clickable
-              />
-            ))}
+      <Container maxWidth="xl" sx={{ py: { xs: 2, sm: 3, md: 4 } }}>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <Typography 
+            variant="h2" 
+            sx={{ 
+              textAlign: 'center', 
+              fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+              mb: { xs: 2, sm: 3 }
+            }}
+          >
+            Our Menu
+          </Typography>
+          
+          {/* Search and Filter Section */}
+          <Box sx={{ mb: { xs: 2, sm: 3, md: 4 } }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  placeholder="Search dishes..."
+                  value={searchTerm}
+                  onChange={handleSearch}
+                  size={matchesSM ? "small" : "medium"}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  gap: 1, 
+                  flexWrap: 'wrap',
+                  justifyContent: { xs: 'center', md: 'flex-start' }
+                }}>
+                  {['all', 'under300', '300to600', 'over600'].map((filter) => (
+                    <Chip
+                      key={filter}
+                      label={filter === 'all' ? 'All Prices' : 
+                            filter === 'under300' ? 'Under Rs. 300' :
+                            filter === '300to600' ? 'Rs. 300 - 600' : 'Over Rs. 600'}
+                      onClick={() => setPriceFilter(filter)}
+                      color={priceFilter === filter ? 'primary' : 'default'}
+                      clickable
+                    />
+                  ))}
+                </Box>
+              </Grid>
+            </Grid>
           </Box>
-        </Box>
 
-        {/* Tabs */}
-        <Tabs value={value} onChange={handleChange} sx={{ mb: 4 }}>
-          <Tab label="Pakistani Food" />
-          <Tab label="Fast Food" />
-        </Tabs>
+          {/* Tabs */}
+          <Tabs value={value} onChange={handleChange} sx={{ mb: 4 }}>
+            <Tab label="Pakistani Food" />
+            <Tab label="Fast Food" />
+          </Tabs>
 
-        {/* Menu Items */}
-        {value === 0 && renderMenuSection(filterItems(menuItems.pakistaniFood))}
-        {value === 1 && renderMenuSection(filterItems(menuItems.fastFood))}
+          {/* Menu Items */}
+          {value === 0 && renderMenuSection(filterItems(menuItems.pakistaniFood))}
+          {value === 1 && renderMenuSection(filterItems(menuItems.fastFood))}
+        </motion.div>
       </Container>
     </Layout>
   );

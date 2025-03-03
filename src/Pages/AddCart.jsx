@@ -299,21 +299,6 @@ const AddCart = () => {
                         }
                       />
                       <FormControlLabel
-                        value="easypaisa"
-                        control={<Radio />}
-                        label={
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <img 
-                              src="https://www.easypaisa.com.pk/images/easypaisaLogo.png"
-                              alt="EasyPaisa"
-                              style={{ width: 40, height: 24, objectFit: 'contain' }}
-                              loading="lazy"
-                            />
-                            <Typography>EasyPaisa</Typography>
-                          </Box>
-                        }
-                      />
-                      <FormControlLabel
                         value="mastercard"
                         control={<Radio />}
                         label={

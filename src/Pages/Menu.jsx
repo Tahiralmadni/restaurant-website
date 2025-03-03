@@ -79,7 +79,7 @@ const Menu = () => {
         name: "Beef Karahi",
         description: "Spicy beef curry cooked in a traditional karahi with fresh tomatoes and ginger",
         price: "Rs. 800",
-        image: "https://images.unsplash.com/photo-1606491956689-2ea866880c84?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+        image: "https://www.google.com/imgres?q=beef%20karahi&imgurl=https%3A%2F%2Funtoldrecipesbynosheen.com%2Fwp-content%2Fuploads%2F2021%2F01%2Fkarahi-gosht-main-2.jpg&imgrefurl=https%3A%2F%2Funtoldrecipesbynosheen.com%2Fbeef-karahi-gosht-recipe%2F&docid=VvEbmCzpa1YL1M&tbnid=rnI3YOu0hI73KM&vet=12ahUKEwiIn7i5geyLAxU7iv0HHbkcHnYQM3oECBUQAA..i&w=1200&h=800&hcb=2&ved=2ahUKEwiIn7i5geyLAxU7iv0HHbkcHnYQM3oECBUQAA"
       },
       {
         name: "Chicken Karahi",
@@ -97,7 +97,7 @@ const Menu = () => {
         name: "Paya",
         description: "Traditional trotters soup, slow-cooked with special spices",
         price: "Rs. 300",
-        image: "https://images.unsplash.com/photo-1611489142329-5f62cfa43e6e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+        image: "https://www.masala.tv/wp-content/uploads/2021/12/Paye-Recipe.jpg"
       },
       {
         name: "Chapli Kabab",
@@ -115,7 +115,7 @@ const Menu = () => {
         name: "Dal Chawal",
         description: "Grilled minced meat skewers with aromatic spices",
         price: "Rs. 200",
-        image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+        image: "https://www.masala.tv/wp-content/uploads/2021/08/Dal-Chawal-Recipe.jpg"
       },
       {
         name: "Sweet potato",
@@ -289,7 +289,12 @@ const Menu = () => {
                       whileTap={{ scale: 0.9 }}
                       style={{ display: 'inline-block' }}
                     >
-                      <IconButton size="small" color="primary">
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.currentTarget.style.color = e.currentTarget.style.color === 'red' ? '' : 'red';
+                        }}
+                      >
                         <FavoriteIcon />
                       </IconButton>
                     </motion.div>

@@ -44,20 +44,25 @@ const Menu = () => {
   };
 
   const filterItems = (items) => {
-    return items.filter(item => {
-      const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.description.toLowerCase().includes(searchTerm.toLowerCase());
+    console.log('Filtering items:', items); // Debug log
+    const filtered = items.filter(item => {
+      const price = parseInt(item.price.replace('Rs. ', ''));
       
-      if (priceFilter === 'all') return matchesSearch;
-      if (priceFilter === 'under300') return matchesSearch && parseInt(item.price.replace('Rs. ', '')) < 300;
-      if (priceFilter === '300to600') {
-        const price = parseInt(item.price.replace('Rs. ', ''));
-        return matchesSearch && price >= 300 && price <= 600;
-      }
-      if (priceFilter === 'over600') return matchesSearch && parseInt(item.price.replace('Rs. ', '')) > 600;
-      
-      return matchesSearch;
+      // Basic search filter
+      const matchesSearch = !searchTerm || 
+        item.name.toLowerCase().includes(searchTerm.toLowerCase());
+
+      // Basic price filter
+      let matchesPrice = true;
+      if (priceFilter === 'under300') matchesPrice = price < 300;
+      if (priceFilter === '300to600') matchesPrice = (price >= 300 && price <= 600);
+      if (priceFilter === 'over600') matchesPrice = price > 600;
+
+      return matchesSearch && matchesPrice;
     });
+    
+    console.log('Filtered results:', filtered); // Debug log
+    return filtered;
   };
 
   // Keep all the existing menuItems data here
@@ -212,128 +217,47 @@ const Menu = () => {
     }
   };
 
-  const renderMenuSection = (items) => (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.2 }}
-    >
+  const renderMenuSection = (items) => {
+    if (!items || items.length === 0) {
+      return <Typography>No items found</Typography>;
+    }
+
+    return (
       <Grid container spacing={3}>
-        {filterItems(items).map((item, index) => (
+        {items.map((item, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
-            <motion.div 
-              variants={itemVariants}
-              whileHover={{ y: -10 }}
-              transition={{ type: "spring", stiffness: 400 }}
-            >
-              <Card sx={{ 
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                position: 'relative',
-                overflow: 'visible'
-              }}>
-                <Box sx={{ position: 'relative', overflow: 'hidden' }}>
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <CardMedia
-                      component="img"
-                      height="200"
-                      image={item.image}
-                      alt={item.name}
-                      sx={{
-                        objectFit: 'cover',
-                      }}
-                    />
-                  </motion.div>
-                  <motion.div
-                    initial={{ x: 100, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 0.2, type: "spring", stiffness: 100 }}
-                  >
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 10,
-                        right: 10,
-                        bgcolor: 'primary.main',
-                        color: 'white',
-                        px: 2,
-                        py: 0.5,
-                        borderRadius: 2,
-                        boxShadow: 3,
-                        zIndex: 1
-                      }}
-                    >
-                      {item.price}
-                    </Box>
-                  </motion.div>
-                </Box>
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography gutterBottom variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
-                    {item.name}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    {item.description}
-                  </Typography>
-                  <Rating value={4.5} precision={0.5} readOnly size="small" />
-                </CardContent>
-                <Divider />
-                <CardActions sx={{ justifyContent: 'space-between', px: 2, py: 1 }}>
-                  <Box>
-                    <motion.div 
-                      whileHover={{ scale: 1.2 }}
-                      whileTap={{ scale: 0.9 }}
-                      style={{ display: 'inline-block' }}
-                    >
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.currentTarget.style.color = e.currentTarget.style.color === 'red' ? '' : 'red';
-                        }}
-                      >
-                        <FavoriteIcon />
-                      </IconButton>
-                    </motion.div>
-                    <motion.div 
-                      whileHover={{ scale: 1.2 }}
-                      whileTap={{ scale: 0.9 }}
-                      style={{ display: 'inline-block' }}
-                    >
-                      <IconButton size="small" color="primary">
-                        <ShareIcon />
-                      </IconButton>
-                    </motion.div>
-                  </Box>
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Button 
-                      variant="contained" 
-                      startIcon={<AddShoppingCartIcon />}
-                      size="small"
-                      onClick={() => handleAddToCart(item)}
-                      sx={{
-                        borderRadius: 2,
-                        textTransform: 'none',
-                        boxShadow: 2
-                      }}
-                    >
-                      Add to Cart
-                    </Button>
-                  </motion.div>
-                </CardActions>
-              </Card>
-            </motion.div>
+            <Card sx={{ height: '100%' }}>
+              <CardMedia
+                component="img"
+                height="200"
+                image={item.image}
+                alt={item.name}
+                sx={{ objectFit: 'cover' }}
+              />
+              <CardContent>
+                <Typography variant="h6">{item.name}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {item.description}
+                </Typography>
+                <Typography variant="h6" color="primary" sx={{ mt: 2 }}>
+                  {item.price}
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <Button 
+                  variant="contained" 
+                  fullWidth
+                  onClick={() => handleAddToCart(item)}
+                >
+                  Add to Cart
+                </Button>
+              </CardActions>
+            </Card>
           </Grid>
         ))}
       </Grid>
-    </motion.div>
-  );
+    );
+  };
 
   const handleAddToCart = (item) => {
     addToCart({
@@ -347,160 +271,41 @@ const Menu = () => {
 
   return (
     <Layout>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-      >
-        <Box 
-          sx={{ 
-            width: '100%', 
-            bgcolor: 'background.paper',
-            backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url("https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3")',
-            backgroundSize: 'cover',
-            backgroundAttachment: 'fixed',
-            py: 4
-          }}
-        >
-          <Container>
-            <motion.div
-              initial={{ opacity: 0, y: -50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ 
-                duration: 0.8,
-                type: "spring",
-                stiffness: 100 
-              }}
-            >
-              <Typography 
-                variant="h2" 
-                sx={{ 
-                  textAlign: 'center', 
-                  mt: 3, 
-                  mb: 1, 
-                  color: 'primary.main', 
-                  fontWeight: 'bold',
-                  textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
-                }}
-              >
-                Our Menu
-              </Typography>
-              <Typography 
-                variant="h6" 
-                sx={{ 
-                  textAlign: 'center', 
-                  mb: 4, 
-                  color: 'text.secondary',
-                  fontWeight: 'light'
-                }}
-              >
-                Discover our delicious selection of dishes
-              </Typography>
-            </motion.div>
-
-            {/* Search and Filter Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-            >
-              <Box sx={{ mb: 4 }}>
-                <Grid container spacing={2} alignItems="center" justifyContent="center">
-                  <Grid item xs={12} md={6}>
-                    <motion.div whileHover={{ scale: 1.02 }}>
-                      <TextField
-                        fullWidth
-                        variant="outlined"
-                        placeholder="Search dishes..."
-                        value={searchTerm}
-                        onChange={handleSearch}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <SearchIcon color="primary" />
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                    </motion.div>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: { xs: 'center', md: 'flex-start' } }}>
-                      {['all', 'under300', '300to600', 'over600'].map((filter, index) => (
-                        <motion.div
-                          key={filter}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.4 + index * 0.1 }}
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <Chip
-                            icon={<LocalOfferIcon />}
-                            label={filter === 'all' ? 'All Prices' : 
-                                  filter === 'under300' ? 'Under Rs. 300' :
-                                  filter === '300to600' ? 'Rs. 300 - 600' : 'Over Rs. 600'}
-                            onClick={() => setPriceFilter(filter)}
-                            color={priceFilter === filter ? 'primary' : 'default'}
-                            clickable
-                            sx={{ boxShadow: 1 }}
-                          />
-                        </motion.div>
-                      ))}
-                    </Box>
-                  </Grid>
-                </Grid>
-              </Box>
-            </motion.div>
-            
-            {/* Menu Tabs */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-            >
-              <Box sx={{ 
-                borderRadius: 2,
-                bgcolor: 'background.paper',
-                boxShadow: 1,
-                mb: 4
-              }}>
-                <Tabs 
-                  value={value} 
-                  onChange={handleChange} 
-                  centered
-                  sx={{
-                    '& .MuiTab-root': {
-                      fontSize: '1.1rem',
-                      textTransform: 'none',
-                      minWidth: 120,
-                      fontWeight: 'medium'
-                    }
-                  }}
-                >
-                  <Tab label="Pakistani Food" />
-                  <Tab label="Fast Food" />
-                </Tabs>
-              </Box>
-            </motion.div>
-
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={value}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
-              >
-                <Box sx={{ mb: 4 }}>
-                  {value === 0 && renderMenuSection(menuItems.pakistaniFood)}
-                  {value === 1 && renderMenuSection(menuItems.fastFood)}
-                </Box>
-              </motion.div>
-            </AnimatePresence>
-          </Container>
+      <Container sx={{ py: 4 }}>
+        {/* Search and Filter UI */}
+        <Box sx={{ mb: 4 }}>
+          <TextField
+            fullWidth
+            placeholder="Search dishes..."
+            value={searchTerm}
+            onChange={handleSearch}
+            sx={{ mb: 2 }}
+          />
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            {['all', 'under300', '300to600', 'over600'].map((filter) => (
+              <Chip
+                key={filter}
+                label={filter === 'all' ? 'All Prices' : 
+                      filter === 'under300' ? 'Under Rs. 300' :
+                      filter === '300to600' ? 'Rs. 300 - 600' : 'Over Rs. 600'}
+                onClick={() => setPriceFilter(filter)}
+                color={priceFilter === filter ? 'primary' : 'default'}
+                clickable
+              />
+            ))}
+          </Box>
         </Box>
-      </motion.div>
+
+        {/* Tabs */}
+        <Tabs value={value} onChange={handleChange} sx={{ mb: 4 }}>
+          <Tab label="Pakistani Food" />
+          <Tab label="Fast Food" />
+        </Tabs>
+
+        {/* Menu Items */}
+        {value === 0 && renderMenuSection(filterItems(menuItems.pakistaniFood))}
+        {value === 1 && renderMenuSection(filterItems(menuItems.fastFood))}
+      </Container>
     </Layout>
   );
 };

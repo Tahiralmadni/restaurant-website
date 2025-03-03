@@ -19,7 +19,9 @@ import {
   CardActions,
   Divider,
   Rating,
-  useMediaQuery
+  useMediaQuery,
+  Menu as MuiMenu,  // Rename Menu import to MuiMenu
+  MenuItem
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
@@ -28,14 +30,25 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import { useCart } from '../context/CartContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+  FacebookShareButton,
+  WhatsappShareButton,
+  TwitterShareButton,
+  FacebookIcon,
+  WhatsappIcon,
+  TwitterIcon
+} from 'react-share';
 
-const Menu = () => {
+const MenuPage = () => {  // Renamed from Menu to MenuPage
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [value, setValue] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [priceFilter, setPriceFilter] = useState('all');
   const matchesSM = useMediaQuery('(max-width:600px)');
+  const [favorites, setFavorites] = useState({});
+  const [shareAnchorEl, setShareAnchorEl] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -245,19 +258,31 @@ const Menu = () => {
                   position: 'relative',
                   display: 'flex',
                   flexDirection: 'column',
-                  maxWidth: { xs: '100%', sm: '100%', md: '100%' }
+                  maxWidth: { xs: '100%', sm: '100%', md: '100%' },
+                  borderRadius: 2,
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                  transition: 'box-shadow 0.3s ease-in-out',
+                  '&:hover': {
+                    boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
+                  }
                 }}>
-                  <Box sx={{ position: 'relative', overflow: 'hidden' }}>
+                  <Box sx={{ 
+                    position: 'relative', 
+                    overflow: 'hidden',
+                    height: { xs: 200, sm: 220, md: 240 },
+                    backgroundColor: '#f5f5f5'
+                  }}>
                     <motion.div
                       whileHover={{ scale: 1.1 }}
                       transition={{ duration: 0.3 }}
+                      style={{ height: '100%' }}
                     >
                       <CardMedia
                         component="img"
-                        height={{ xs: '180', sm: '200', md: '200' }}
                         image={item.image}
                         alt={item.name}
                         sx={{ 
+                          height: '100%',
                           objectFit: 'cover',
                           width: '100%'
                         }}
@@ -266,62 +291,96 @@ const Menu = () => {
                     <Box
                       sx={{
                         position: 'absolute',
-                        top: 10,
-                        right: 10,
+                        top: 16,
+                        right: 16,
                         bgcolor: 'primary.main',
                         color: 'white',
-                        px: { xs: 1.5, sm: 2 },
-                        py: { xs: 0.3, sm: 0.5 },
-                        borderRadius: 2,
-                        boxShadow: 3,
-                        fontSize: { xs: '0.875rem', sm: '1rem' }
+                        px: 2,
+                        py: 0.75,
+                        borderRadius: '20px',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                        fontSize: { xs: '0.875rem', sm: '1rem' },
+                        fontWeight: 'bold',
+                        zIndex: 1
                       }}
                     >
                       {item.price}
                     </Box>
                   </Box>
-                  <CardContent sx={{ flexGrow: 1, p: { xs: 1.5, sm: 2 } }}>
+                  <CardContent sx={{ 
+                    flexGrow: 1, 
+                    p: 2.5,
+                    '&:last-child': { pb: 2 }
+                  }}>
                     <Typography 
                       variant="h6" 
                       gutterBottom
                       sx={{ 
-                        fontSize: { xs: '1rem', sm: '1.25rem' },
-                        fontWeight: 'bold'
+                        fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                        fontWeight: 700,
+                        color: '#2c3e50',
+                        mb: 1
                       }}
                     >
                       {item.name}
                     </Typography>
                     <Typography 
                       variant="body2" 
-                      color="text.secondary"
                       sx={{ 
                         mb: 2,
-                        fontSize: { xs: '0.875rem', sm: '0.875rem' },
+                        fontSize: '0.9rem',
+                        color: '#666',
                         display: '-webkit-box',
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden'
+                        overflow: 'hidden',
+                        lineHeight: 1.5
                       }}
                     >
                       {item.description}
                     </Typography>
-                    <Rating value={4.5} precision={0.5} readOnly size="small" />
+                    <Rating 
+                      value={4.5} 
+                      precision={0.5} 
+                      readOnly 
+                      size="small"
+                      sx={{ 
+                        color: '#FFD700', // Gold color for stars
+                        '& .MuiRating-iconFilled': {
+                          color: '#FFD700',
+                        },
+                        '& .MuiRating-iconHover': {
+                          color: '#FFD700',
+                        }
+                      }}
+                    />
                   </CardContent>
-                  <Divider />
+                  <Divider sx={{ opacity: 0.1 }} />
                   <CardActions sx={{ 
                     justifyContent: 'space-between', 
-                    p: { xs: 1, sm: 1.5 },
-                    flexWrap: 'wrap',
-                    gap: 1
+                    p: 2,
+                    bgcolor: 'background.paper'
                   }}>
                     <Box sx={{ display: 'flex', gap: 1 }}>
                       <motion.div whileHover={{ scale: 1.2 }}>
-                        <IconButton size={matchesSM ? "small" : "medium"}>
-                          <FavoriteIcon fontSize={matchesSM ? "small" : "medium"} />
+                        <IconButton 
+                          size={matchesSM ? "small" : "medium"}
+                          onClick={() => handleFavoriteClick(item.name)}
+                        >
+                          <FavoriteIcon 
+                            fontSize={matchesSM ? "small" : "medium"} 
+                            sx={{ 
+                              color: favorites[item.name] ? 'red' : 'inherit'
+                            }}
+                          />
                         </IconButton>
                       </motion.div>
                       <motion.div whileHover={{ scale: 1.2 }}>
-                        <IconButton size={matchesSM ? "small" : "medium"} color="primary">
+                        <IconButton 
+                          size={matchesSM ? "small" : "medium"} 
+                          color="primary"
+                          onClick={(e) => handleShareClick(e, item)}
+                        >
                           <ShareIcon fontSize={matchesSM ? "small" : "medium"} />
                         </IconButton>
                       </motion.div>
@@ -359,6 +418,26 @@ const Menu = () => {
     });
     navigate('/addcart');
   };
+
+  const handleFavoriteClick = (itemName) => {
+    setFavorites(prev => ({
+      ...prev,
+      [itemName]: !prev[itemName]
+    }));
+  };
+
+  const handleShareClick = (event, item) => {
+    setShareAnchorEl(event.currentTarget);
+    setSelectedItem(item);
+  };
+
+  const handleShareClose = () => {
+    setShareAnchorEl(null);
+    setSelectedItem(null);
+  };
+
+  const shareUrl = `https://yourwebsite.com/menu/${selectedItem?.name}`;
+  const shareTitle = `Check out ${selectedItem?.name} at Our Restaurant!`;
 
   return (
     <Layout>
@@ -425,8 +504,41 @@ const Menu = () => {
           {value === 1 && renderMenuSection(filterItems(menuItems.fastFood))}
         </motion.div>
       </Container>
+      <MuiMenu
+        anchorEl={shareAnchorEl}
+        open={Boolean(shareAnchorEl)}
+        onClose={handleShareClose}
+      >
+        <MenuItem>
+          <FacebookShareButton
+            url={shareUrl}
+            quote={shareTitle}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px' }}
+          >
+            <FacebookIcon size={32} round /> Share on Facebook
+          </FacebookShareButton>
+        </MenuItem>
+        <MenuItem>
+          <WhatsappShareButton
+            url={shareUrl}
+            title={shareTitle}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px' }}
+          >
+            <WhatsappIcon size={32} round /> Share on WhatsApp
+          </WhatsappShareButton>
+        </MenuItem>
+        <MenuItem>
+          <TwitterShareButton
+            url={shareUrl}
+            title={shareTitle}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px' }}
+          >
+            <TwitterIcon size={32} round /> Share on Twitter
+          </TwitterShareButton>
+        </MenuItem>
+      </MuiMenu>
     </Layout>
   );
 };
 
-export default Menu;
+export default MenuPage;  // Update export name

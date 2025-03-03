@@ -436,7 +436,12 @@ const MenuPage = () => {  // Renamed from Menu to MenuPage
     setSelectedItem(null);
   };
 
-  const shareUrl = `https://yourwebsite.com/menu/${selectedItem?.name}`;
+  // If using custom domain
+  const WEBSITE_URL = process.env.NODE_ENV === 'production' 
+    ? 'https://your-custom-domain.com'
+    : window.location.origin;
+
+  const shareUrl = `${WEBSITE_URL}/menu/${selectedItem?.name}`;
   const shareTitle = `Check out ${selectedItem?.name} at Our Restaurant!`;
 
   return (
